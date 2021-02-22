@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+set -euEo pipefail
+
+sudo install -v -m 644 ./vpn-router-iptable-rules.service /lib/systemd/system
+sudo install -v -m 551 ./vpn-router-iptable-rules /usr/local/bin
+sudo systemctl enable --now vpn-router-iptable-rules.service

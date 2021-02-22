@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# Installs dnsmasq
+
+set -euEo pipefail
+
+sudo systemctl disable --now systemd-resolved
+sudo rm -rfv /etc/resolv.conf
+
+echo 'nameserver 1.1.1.1' | sudo tee /etc/resolv.conf
+
+sudo apt install -y dnsmasq
+
+cat <<EOF | sudo tee /etc/resolv.conf
+nameserver 127.0.0.1
+nameserver 1.1.1.1
+EOF
+
+sudo cp -v /etc/dnsmasq.conf{,.bak}
+sudo cp -v dnsmasq.conf /etc
+dnsmasq --test
+sudo systemctl restart dnsmasq

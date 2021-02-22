@@ -1,0 +1,53 @@
+#!/usr/bin/env sh
+# shellcheck disable=SC2039
+#
+# vpn-router-iptable-rules (VRIR)
+#
+
+#
+# Globals:
+#   VRIR_NETWORK
+#
+
+set -eu
+
+if [ -f /etc/vpn-router-iptable-rules.env ]; then
+  set -a
+  . /etc/vpn-router-iptable-rules.env
+  set +a
+fi
+
+readonly RULE1="FORWARD -o ${VRIR_OUTPUT_NIC:-'tun0'} -i ${VRIR_INPUT_NIC} -s ${VRIR_NETWORK:-'192.168.1.0/24'} -m conntrack --ctstate NEW -j ACCEPT"
+readonly RULE2='FORWARD -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT'
+readonly RULE3='POSTROUTING -t nat -j MASQUERADE'
+
+add_rule() {
+  local rule="iptables -A ${1}"
+  eval "$rule"
+  echo "added: $rule"
+}
+
+del_rule() {
+  local rule="iptables -D ${1}"
+  while eval "$rule" 2>/dev/null; do
+    echo "deleted: $rule"
+  done
+}
+
+del_all_rules() {
+  del_rule "$RULE1"
+  del_rule "$RULE2"
+  del_rule "$RULE3"
+}
+
+if [ "$1" = start ]; then
+  del_all_rules # avoid adding duplicate rules
+  add_rule "$RULE1"
+  add_rule "$RULE2"
+  add_rule "$RULE3"
+elif [ "$1" = stop ]; then
+  del_all_rules
+else
+  echo "ERR: invalid command: ${0}" >&2
+  exit 1
+fi

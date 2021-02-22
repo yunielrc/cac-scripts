@@ -1,0 +1,21 @@
+#!/sbin/openrc-run
+# shellcheck disable=SC2034
+
+description="vpn router iptable rules"
+
+depend() {
+  need net
+  use openvpn-client-sslocal
+}
+
+start() {
+ ebegin "Starting vpn-router-iptable-rules"
+ /usr/local/bin/vpn-router-iptable-rules start
+ eend $?
+}
+
+stop() {
+ ebegin "Stopping vpn-router-iptable-rules"
+ /usr/local/bin/vpn-router-iptable-rules stop
+ eend $?
+}

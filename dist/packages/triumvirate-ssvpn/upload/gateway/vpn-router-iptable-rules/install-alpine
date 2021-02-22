@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+
+set -eu
+
+apk add iptables -U
+install -v -m 551 ./vpn-router-iptable-rules.rc /etc/init.d/vpn-router-iptable-rules
+install -v -m 551 ./vpn-router-iptable-rules /usr/local/bin
+rc-update add vpn-router-iptable-rules

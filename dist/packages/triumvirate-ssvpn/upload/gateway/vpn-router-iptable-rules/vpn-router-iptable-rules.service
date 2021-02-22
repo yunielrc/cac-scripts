@@ -1,0 +1,11 @@
+[Unit]
+Description=vpn router iptable rules
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/local/bin/vpn-router-iptable-rules start
+ExecStop=/usr/local/bin/vpn-router-iptable-rules stop
+
+[Install]
+WantedBy=multi-user.target
