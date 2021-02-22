@@ -600,10 +600,18 @@ SSHEOF
 
 configure_local_pc() {
 
-  if [[ -n "${GATEWAY_VBOX_NAME:-}" ]]; then
+  type -P virtualbox || {
+    echo "VirtualBox ins't installed on this system"
+    return 1
+  }
 
-    # Install gateway virtualbox vm service for autostart
-    cat <<-EOF | sudo tee /lib/systemd/system/vbox-vm-start@.service
+  [[ -n "${GATEWAY_VBOX_NAME:-}" ]] || {
+    echo 'variable GATEWAY_VBOX_NAME is empty'
+    return 1
+  }
+
+  # Install gateway virtualbox vm service for autostart
+  cat <<-EOF | sudo tee /lib/systemd/system/vbox-vm-start@.service
 [Unit]
 Description=VirtualBox VM %I
 After=network.target vboxdrv.service
@@ -626,8 +634,7 @@ ExecStop=/usr/bin/VBoxManage controlvm %i acpipowerbutton
 [Install]
 WantedBy=multi-user.target
 EOF
-    sudo systemctl enable --now "vbox-vm-start@${GATEWAY_VBOX_NAME}"
-  fi
+  sudo systemctl enable --now "vbox-vm-start@${GATEWAY_VBOX_NAME}"
 }
 
 main() {
