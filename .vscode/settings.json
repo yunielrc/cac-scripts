@@ -1,0 +1,14 @@
+{
+  "shellcheck.exclude": ["1091", "1090", "2155"],
+  "editor.formatOnSave": false,
+  "files.exclude": {
+    ".vagrant": true,
+    ".vscode": true
+  },
+  "files.associations": {
+    ".env*": "shellscript",
+    "htoprc": "ini"
+  },
+  "DockerRun.DisableAutoGenerateConfig": true,
+  "cSpell.enabled": true
+}

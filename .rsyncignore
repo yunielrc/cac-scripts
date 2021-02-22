@@ -1,0 +1,6 @@
+*~
+.git
+.vagrant
+.git-crypt
+rsync-vm
+Vagrantfile

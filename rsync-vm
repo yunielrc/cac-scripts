@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+set -euEo pipefail
+
+set -o allexport
+. ./.env
+set +o allexport
+
+readonly vm="$1"
+
+readonly ssh_config="$(vagrant ssh-config "$vm")"
+readonly ssh_host_name="$(echo "$ssh_config" | grep -P '\s*HostName\s+' | sed -e 's/^\s*HostName\s*//' -e 's/\s*$//')"
+readonly ssh_user="$(echo "$ssh_config" | grep -P '\s*User\s+' | sed -e 's/^\s*User\s*//' -e 's/\s*$//')"
+
+rsync -avzL \
+  --progress \
+  --delete \
+  --exclude-from=./.rsyncignore \
+  . "${ssh_user}@${ssh_host_name}:${AWS_WORKDIR}"
