@@ -13,7 +13,7 @@ GATEWAY       | MIDDLE-SERVER   | END-SERVER
 
 ## Prerequisites
 
-You need three devices or vm instances, one in your local network (gateway), 
+You need three devices or vm instances, one in your local network (gateway),
 another in your country's network (middle-server), and another in a foreign country (end-server)
 
 ## Install
@@ -39,7 +39,7 @@ bash configure    # configure the three servers
 ## Usage
 
 - Use 'GATEWAY' as a gateway and dns server for the devices on your network
-- if GATEWAY loses access to MIDDLE-SERVER, you have to restart vpn client 
+- if GATEWAY loses access to MIDDLE-SERVER, you have to restart vpn client
 running on GATEWAY with the command below:
 
 ```sh

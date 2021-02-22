@@ -2,8 +2,9 @@
 
 Enable project git hooks
 
-In project root dir execute:
+Go to project root dir and execute:
 
 ```sh
-ln -sf ../scripts/git-hooks .git/hooks
+cd .git
+ln -sf ../scripts/git-hooks hooks
 ```
