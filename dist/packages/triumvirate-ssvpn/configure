@@ -224,7 +224,7 @@ configure_gateway() {
     #  Configures Network
     #
     readonly nic="\$(ip r | grep '^default' | cut -d' ' -f5)"
-    readonly netplan_cfg="/etc/netplan/${GATEWAY_NETPLAN}"
+    readonly netplan_cfg="/etc/netplan/${GATEWAY_NETPLAN:-'00-installer-config.yaml'}"
 
     [[ -f "\$netplan_cfg" ]] &&
       sudo cp "\$netplan_cfg" "\${netplan_cfg}.$(printf '%(%Y%m%d%H%M%S)T')"
