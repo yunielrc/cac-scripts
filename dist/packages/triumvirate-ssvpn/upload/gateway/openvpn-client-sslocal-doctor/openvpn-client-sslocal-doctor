@@ -1,0 +1,25 @@
+#!/usr/bin/env sh
+#
+# Checks vpn client connection status and restart it if don't have internet access
+#
+set -eu
+
+#
+# GLOBALS:
+#   END_SERVER_IP
+#   MIDDLE_SERVER_IP
+#
+
+if [ -f /etc/openvpn-client-sslocal-doctor.env ]; then
+  set -a
+  . /etc/openvpn-client-sslocal-doctor.env
+  set +a
+fi
+
+readonly OVPN_SERVICE='openvpn-client-sslocal'
+
+if ping -c 1 -W 5 "$MIDDLE_SERVER_IP" >/dev/null 2>&1 &&
+  ! ping -c 1 -W 10 "$END_SERVER_IP" >/dev/null 2>&1; then
+  echo "Restarting ${OVPN_SERVICE}"
+  rc-service "$OVPN_SERVICE" restart
+fi

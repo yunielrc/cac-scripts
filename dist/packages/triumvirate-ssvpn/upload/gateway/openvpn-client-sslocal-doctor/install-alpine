@@ -1,0 +1,21 @@
+#!/usr/bin/env sh
+
+set -eu
+
+#
+# GLOBALS:
+#   END_SERVER_IP
+#   MIDDLE_SERVER_IP
+#
+
+install -v -m 551 ./openvpn-client-sslocal-doctor /usr/local/bin
+
+# adds script to crontab
+readonly tmpcron=/tmp/tmpcron
+crontab -l >"$tmpcron" || :
+cat <<EOF >>"$tmpcron"
+# openvpn-client-sslocal-doctor
+*       *       *       *       *       /usr/local/bin/openvpn-client-sslocal-doctor 2>&1 | /usr/bin/logger -t openvpn-client-sslocal-doctor
+EOF
+crontab "$tmpcron"
+rm "$tmpcron"

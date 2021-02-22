@@ -539,9 +539,17 @@ EOF
     rc-update add openvpn-client-sslocal
 
     #
-    # Installs apps
+    # Installs & Configures openvpn-client-sslocal-doctor
     #
-    apk add bmon
+    (
+      cd /tmp/gateway/openvpn-client-sslocal-doctor
+
+      cat <<-EOF >/etc/openvpn-client-sslocal-doctor.env
+END_SERVER_IP='${END_SERVER_IP}'
+MIDDLE_SERVER_IP='${MIDDLE_SERVER_IP}'
+EOF
+      sh install-alpine
+    )
 
     #
     # Installs dnsmasq
@@ -585,6 +593,11 @@ VRIR_OUTPUT_NIC=tun0
 EOF
       sh install-alpine
     )
+
+    #
+    # Installs optional apps
+    #
+    apk add bmon htop bat vim
 
     #
     # Start & Restart services
