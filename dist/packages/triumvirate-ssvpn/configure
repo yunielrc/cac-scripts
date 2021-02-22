@@ -641,7 +641,8 @@ main() {
   configure_end_server
   configure_middle_server
   configure_gateway_alpine
-  configure_local_pc
+  [[ -n "${GATEWAY_VBOX_NAME:-}" ]] &&
+    configure_local_pc
 }
 
 # on_exit() {
