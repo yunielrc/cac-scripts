@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 #
-# Checks vpn client connection status and restart it if don't have internet access
+# Check vpn client connection status and restart it if don't have internet access
 #
 set -eu
 
@@ -18,14 +18,20 @@ fi
 
 readonly OVPN_SERVICE='openvpn-client-sslocal'
 
-if ping -c 1 -W 5 "$MIDDLE_SERVER_IP" >/dev/null 2>&1; then
-  if  ! ping -c 1 -W 5 "$END_SERVER_IP" >/dev/null 2>&1; then
-    echo "No access to end-server, restarting ${OVPN_SERVICE}"
+# If there is an intranet connection (middle-server access)
+if ping -c 1 -W 2 "$MIDDLE_SERVER_IP" >/dev/null 2>&1; then
+  # If there is no internet connection, the vpn client is restarted
+  if ! ping -c 1 -W 3 "$END_SERVER_IP" >/dev/null 2>&1; then
+    echo "There is intranet but no internet, restarting ${OVPN_SERVICE}"
     rc-service "$OVPN_SERVICE" restart
+    exit 0
   fi
-else
-  if rc-service "$OVPN_SERVICE" status | grep -q started; then
-   echo "No access to middle-server, stopping ${OVPN_SERVICE}"
-   rc-service "$OVPN_SERVICE" stop
+  # if there is internet without going through the vpn, the vpn client is disabled
+  if [ -n "${VPN_BYPASS_INTERNET_IP:-}" ] &&
+    rc-service "$OVPN_SERVICE" status | grep -q started &&
+    ping -c 1 -W 3 "$VPN_BYPASS_INTERNET_IP" >/dev/null 2>&1; then
+    echo "There is internet outside the vpn, stopping ${OVPN_SERVICE}"
+    rc-service "$OVPN_SERVICE" stop
+    exit 0
   fi
 fi
