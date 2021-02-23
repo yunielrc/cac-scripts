@@ -48,6 +48,6 @@ if [ "$1" = start ]; then
 elif [ "$1" = stop ]; then
   del_all_rules
 else
-  echo "ERR: invalid command: ${0}" >&2
+  echo "ERR: invalid command: ${1}" >&2
   exit 1
 fi

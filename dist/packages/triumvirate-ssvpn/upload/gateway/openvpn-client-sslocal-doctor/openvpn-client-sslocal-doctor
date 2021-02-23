@@ -18,8 +18,14 @@ fi
 
 readonly OVPN_SERVICE='openvpn-client-sslocal'
 
-if ping -c 1 -W 5 "$MIDDLE_SERVER_IP" >/dev/null 2>&1 &&
-  ! ping -c 1 -W 10 "$END_SERVER_IP" >/dev/null 2>&1; then
-  echo "Restarting ${OVPN_SERVICE}"
-  rc-service "$OVPN_SERVICE" restart
+if ping -c 1 -W 5 "$MIDDLE_SERVER_IP" >/dev/null 2>&1; then
+  if  ! ping -c 1 -W 5 "$END_SERVER_IP" >/dev/null 2>&1; then
+    echo "No access to end-server, restarting ${OVPN_SERVICE}"
+    rc-service "$OVPN_SERVICE" restart
+  fi
+else
+  if rc-service "$OVPN_SERVICE" status | grep -q started; then
+   echo "No access to middle-server, stopping ${OVPN_SERVICE}"
+   rc-service "$OVPN_SERVICE" stop
+  fi
 fi
