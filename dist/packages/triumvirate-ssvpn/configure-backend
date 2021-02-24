@@ -23,7 +23,8 @@ alias ssh="ssh ${ssh_params}"
 # shellcheck disable=SC2139
 alias scp="scp ${ssh_params}"
 
-: "${TMP_DIR:=/tmp/triumvirate-ssvpn}"
+[[ -z "${TMP_DIR:-}" ]] && TMP_DIR=/tmp/triumvirate-ssvpn
+# : "${TMP_DIR:=/tmp/triumvirate-ssvpn}"
 [[ -d "$TMP_DIR" ]] || mkdir -p "$TMP_DIR"
 
 __snippet_configure_docker_apt() {
