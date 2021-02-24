@@ -2,12 +2,11 @@
 
 Configuration as Code Scripts
 
-## Install
-
-git clone https://github.com/yunielrc/cac-scripts.git
+## Configure
 
 ```sh
-cd cac-scripts/packages/package-name
+git clone https://github.com/yunielrc/cac-scripts.git
+cd cac-scripts/packages/<package-name>
 cat README.md     # read the doc
 cp .env{.sample,}
 vim .env          # edit the config
