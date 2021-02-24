@@ -20,6 +20,7 @@ alias ssh="ssh ${ssh_params}"
 # shellcheck disable=SC2139
 alias scp="scp ${ssh_params}"
 
+: "${TMP_DIR:=/tmp/triumvirate-ssvpn}"
 [[ -d "$TMP_DIR" ]] || mkdir -p "$TMP_DIR"
 
 configure_gateway_alpine() {
@@ -286,6 +287,8 @@ EOF
     rc-service vpn-router-iptable-rules start
     # rc-service networking restart
 SSHEOF
+
+  echo '>> GATEWAY-SERVER configured'
 }
 
 main() {

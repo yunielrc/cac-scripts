@@ -23,6 +23,7 @@ alias ssh="ssh ${ssh_params}"
 # shellcheck disable=SC2139
 alias scp="scp ${ssh_params}"
 
+: "${TMP_DIR:=/tmp/triumvirate-ssvpn}"
 [[ -d "$TMP_DIR" ]] || mkdir -p "$TMP_DIR"
 
 __snippet_configure_docker_apt() {
@@ -72,6 +73,8 @@ SSHEOF
 
   scp -v "${END_SERVER_USER}@${END_SERVER_IP}:/home/${END_SERVER_USER}/openvpn-shadowsocks-server/${END_SERVER_OPENVPN_CLIENT_NAME}.ovpn" \
     "$END_SERVER_OVPN_PROFILE_LOCAL_PATH"
+
+  echo '>> END-SERVER configured'
 }
 
 configure_middle_server() {
@@ -190,6 +193,8 @@ SSHEOF
 
   scp -v "${MIDDLE_SERVER_USER}@${MIDDLE_SERVER_IP}:/home/${MIDDLE_SERVER_USER}/openvpn-shadowsocks-server/${MIDDLE_SERVER_OPENVPN_CLIENT_NAME}.ovpn" \
     "$MIDDLE_SERVER_OVPN_PROFILE_LOCAL_PATH"
+
+  echo '>> MIDDLE-SERVER configured'
 }
 
 main() {

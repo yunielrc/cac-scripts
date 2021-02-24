@@ -42,9 +42,11 @@ ExecStop=/usr/bin/VBoxManage controlvm %i acpipowerbutton
 [Install]
 WantedBy=multi-user.target
 EOF
-  VBoxManage controlvm "$GATEWAY_VBOX_NAME" acpipowerbutton &>/dev/null || :
-  sleep 10
-  sudo systemctl enable --now "vbox-vm-start@${GATEWAY_VBOX_NAME}"
+  # VBoxManage controlvm "$GATEWAY_VBOX_NAME" acpipowerbutton &>/dev/null || :
+  # sleep 10
+  sudo systemctl enable "vbox-vm-start@${GATEWAY_VBOX_NAME}"
+
+  echo '>> LOCAL configured'
 }
 
 main() {
