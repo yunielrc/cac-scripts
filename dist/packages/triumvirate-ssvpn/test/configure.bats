@@ -53,58 +53,6 @@ SSHEOF
   [[ -f "$MIDDLE_SERVER_OVPN_PROFILE_LOCAL_PATH" ]]
 }
 
-@test 'configure_gateway should install openvpn + sss client' {
-  skip
-  configure_gateway
-
-  ssh "${GATEWAY_USER}@${GATEWAY_IP}" <<-SSHEOF
-    set -euEo pipefail
-
-    #
-    # CHECK: Upload files
-    #
-    [[ -d /tmp/gateway ]]
-
-    #
-    # CHECK: Copies middle-server.ovpn profile from local to gateway
-    #
-    [[ -f ~/"${MIDDLE_SERVER_OPENVPN_CLIENT_NAME}.ovpn" ]]
-
-    #
-    #  CHECK: onfigures Network
-    #
-    readonly nic="\$(ip r | grep '^default' | cut -d' ' -f5)"
-    [[ "\$(ip r | grep "\${nic}.*kernel" | cut -d' ' -f9)" == "$GATEWAY_IP" ]]
-    [[ "\$(ip r | grep '^default' | cut -d' ' -f3)" == "$GATEWAY_GATEWAY_IP" ]]
-
-    #
-    # Installs and Configures: openvpn client + shadowsocks client to middle-server
-    #
-
-    systemctl status openvpn-client@ovpn-ssclient
-    [[ -n "\$(sudo docker ps --all --quiet --filter name=ssclient)" ]]
-
-    #
-    # CHECKS: Install dnsmasq
-    #
-    systemctl status dnsmasq
-
-    #
-    # CHECKS: Enables ipv4 forwarding
-    #
-    [[ "$(sysctl net.ipv4.ip_forward)" == 'net.ipv4.ip_forward = 1' ]]
-
-    #
-    # CHECKS: Installs vpn gateway iptables
-    #
-    systemctl status vpn-router-iptable-rules
-    sleep 3
-    # dig +short myip.opendns.com @resolver1.opendns.com | grep -q "$END_SERVER_IP"
-
-    ## TODO: test traffic route with traceroute
-SSHEOF
-}
-
 @test 'configure_gateway_alpine should install openvpn + sss client' {
   configure_gateway_alpine
 

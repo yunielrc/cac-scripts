@@ -21,27 +21,30 @@ another in your country's network (middle-server), and another in a foreign coun
 Before continuing to configure the servers, you must run the following command on each
 server in order to run sudo without password prompt.
 
-Run on each server:
+Run on each ubuntu server:
 
 ```sh
 echo "${USER} ALL=NOPASSWD:ALL" | sudo tee /etc/sudoers.d/nopasswd
 ```
 
-git clone https://github.com/yunielrc/cac-scripts.git
+Run on your pc:
 
 ```sh
+git clone https://github.com/yunielrc/cac-scripts.git
 cd cac-scripts/packages/triumvirate-ssvpn
 cp .env{.sample,}
-vim .env          # edit the config
-bash configure    # configure the three servers
+vim .env                  # edit the config
+bash configure-backend    # configure middle and end server
+bash configure-gateway    # configure garteway saever
 ```
+
+If GATEWAY is running in a VirtualBox VM on your PC, run the command below:
+
+```sh
+bash configure-local
+```
+
 
 ## Usage
 
 - Use 'GATEWAY' as a gateway and dns server for the devices on your network
-- if GATEWAY loses access to MIDDLE-SERVER, you have to restart vpn client
-running on GATEWAY with the command below:
-
-```sh
-ssh GATEWAY_USER@GATEWAY_IP sudo systemctl restart openvpn-client@ovpn-ssclient
-```

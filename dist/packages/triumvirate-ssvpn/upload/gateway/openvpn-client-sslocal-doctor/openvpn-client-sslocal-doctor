@@ -6,7 +6,7 @@ set -eu
 
 #
 # GLOBALS:
-#   END_SERVER_IP
+#   INTERNET_IP
 #   MIDDLE_SERVER_IP
 #
 
@@ -21,7 +21,7 @@ readonly OVPN_SERVICE='openvpn-client-sslocal'
 # If there is an intranet connection (middle-server access)
 if ping -c 1 -W 2 "$MIDDLE_SERVER_IP" >/dev/null 2>&1; then
   # If there is no internet connection, the vpn client is restarted
-  if ! ping -c 1 -W 3 "$END_SERVER_IP" >/dev/null 2>&1; then
+  if ! ping -c 1 -W 10 "$INTERNET_IP" >/dev/null 2>&1; then
     echo "There is intranet but no internet, restarting ${OVPN_SERVICE}"
     rc-service "$OVPN_SERVICE" restart
     exit 0
@@ -29,7 +29,7 @@ if ping -c 1 -W 2 "$MIDDLE_SERVER_IP" >/dev/null 2>&1; then
   # if there is internet without going through the vpn, the vpn client is disabled
   if [ -n "${VPN_BYPASS_INTERNET_IP:-}" ] &&
     rc-service "$OVPN_SERVICE" status | grep -q started &&
-    ping -c 1 -W 3 "$VPN_BYPASS_INTERNET_IP" >/dev/null 2>&1; then
+    ping -c 1 -W 5 "$VPN_BYPASS_INTERNET_IP" >/dev/null 2>&1; then
     echo "There is internet outside the vpn, stopping ${OVPN_SERVICE}"
     rc-service "$OVPN_SERVICE" stop
     exit 0

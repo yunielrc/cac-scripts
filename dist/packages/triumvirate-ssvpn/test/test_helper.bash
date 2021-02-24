@@ -1,3 +1,5 @@
 . "${DIST_PATH}/test/test_helper.bash"
 cd ..
-. configure
+. configure-backend
+. configure-gateway
+. configure-local

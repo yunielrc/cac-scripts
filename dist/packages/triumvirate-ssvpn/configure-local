@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+
+# Configures local pc running GATEWAY server
+# GATEWAY ⇆ MIDDLE-SERVER ⇆ END-SERVER
+
+set -euEo pipefail
+
+set -a
+[[ -f .env ]] && . .env
+[[ -f .env.local ]] && . .env.local
+set +a
+
+configure_local_pc() {
+
+  type -P virtualbox || {
+    echo "VirtualBox ins't installed on this system"
+    return 1
+  }
+
+  # Install gateway virtualbox vm service for autostart
+  cat <<-EOF | sudo tee /lib/systemd/system/vbox-vm-start@.service
+[Unit]
+# Autostart VirtualBox virtual machines
+Description=VirtualBox VM %I
+After=network.target vboxdrv.service
+Before=runlevel2.target shutdown.target
+
+[Service]
+User=${USER}
+Group=vboxusers
+Type=forking
+Restart=no
+TimeoutSec=5min
+IgnoreSIGPIPE=no
+KillMode=process
+GuessMainPID=no
+RemainAfterExit=yes
+
+ExecStart=/usr/bin/VBoxManage startvm %i --type headless
+ExecStop=/usr/bin/VBoxManage controlvm %i acpipowerbutton
+
+[Install]
+WantedBy=multi-user.target
+EOF
+  VBoxManage controlvm "$GATEWAY_VBOX_NAME" acpipowerbutton &>/dev/null || :
+  sleep 10
+  sudo systemctl enable --now "vbox-vm-start@${GATEWAY_VBOX_NAME}"
+}
+
+main() {
+  configure_local_pc
+}
+
+# on_exit() {
+#   rm -r "$TMP_DIR"
+# }
+# trap on_exit INT TERM EXIT
+
+if [[ "${BASH_SOURCE[0]}" = "${0}" ]]; then
+  main "$@"
+fi

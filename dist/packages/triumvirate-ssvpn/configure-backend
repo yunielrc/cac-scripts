@@ -1,0 +1,207 @@
+#!/usr/bin/env bash
+
+# Configures backend ubuntu servers connected in a straight line with vpn + shadowsocks
+# GATEWAY ⇆ MIDDLE-SERVER ⇆ END-SERVER
+
+#
+# !!!RUN THE COMMAND BELOW on each server before run this script!!!
+# > this allows to run sudo without password
+# $  echo "${USER} ALL=NOPASSWD:ALL" | sudo tee /etc/sudoers.d/nopasswd
+#
+
+set -euEo pipefail
+shopt -s expand_aliases
+
+set -a
+[[ -f .env ]] && . .env
+[[ -f .env.local ]] && . .env.local
+set +a
+
+ssh_params='-o BatchMode=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'
+# shellcheck disable=SC2139
+alias ssh="ssh ${ssh_params}"
+# shellcheck disable=SC2139
+alias scp="scp ${ssh_params}"
+
+[[ -d "$TMP_DIR" ]] || mkdir -p "$TMP_DIR"
+
+__snippet_configure_docker_apt() {
+  cat <<-SNIPPET_EOF
+    ## Configures docker
+    [[ -d /etc/systemd/system/docker.service.d ]] ||
+      sudo mkdir -p /etc/systemd/system/docker.service.d
+
+    cat <<EOF | sudo tee /etc/systemd/system/docker.service.d/http-proxy.conf
+[Service]
+Environment="HTTP_PROXY=${PROXY_URL}" "HTTPS_PROXY=${PROXY_URL}" "NO_PROXY=localhost,127.0.0.1"
+EOF
+    ## Configures apt
+    cat <<EOF | sudo tee /etc/apt/apt.conf.d/00proxy
+Acquire::https::Proxy "${PROXY_URL}";
+EOF
+SNIPPET_EOF
+}
+
+readonly SNIPPET_CONFIGURE_DOCKER_APT="$(__snippet_configure_docker_apt)"
+readonly SNIPPET_INSTALL_APPS='sudo apt install -y bmon net-tools
+'
+
+configure_end_server() {
+  #
+  # Installs and Configures: openvpn server + shadowsocks server
+  # shellcheck disable=2087
+  ssh "${END_SERVER_USER}@${END_SERVER_IP}" <<-SSHEOF
+    set -euEo pipefail
+
+    wget -qO - https://git.io/JT9Gz?=openvpn-shadowsocks-server-linux |
+      WORKING_DIR=~/openvpn-shadowsocks-server \
+      SS_CLIENT_PORT=1080 \
+      SS_PORT="$END_SERVER_SS_PORT" \
+      SS_PASSWORD="$END_SERVER_SS_PASSWORD" \
+      OPENVPN_CLIENT_NAME="$END_SERVER_OPENVPN_CLIENT_NAME" \
+      bash
+
+    # Install apps
+    ${SNIPPET_INSTALL_APPS}
+SSHEOF
+  #
+  # Copies end-server.ovpn profile to local
+  #
+  [[ -f "$END_SERVER_OVPN_PROFILE_LOCAL_PATH" ]] &&
+    rm -f "$END_SERVER_OVPN_PROFILE_LOCAL_PATH"
+
+  scp -v "${END_SERVER_USER}@${END_SERVER_IP}:/home/${END_SERVER_USER}/openvpn-shadowsocks-server/${END_SERVER_OPENVPN_CLIENT_NAME}.ovpn" \
+    "$END_SERVER_OVPN_PROFILE_LOCAL_PATH"
+}
+
+configure_middle_server() {
+  #
+  # Copies end-server.ovpn profile from local to middle-server
+  #
+  scp "$END_SERVER_OVPN_PROFILE_LOCAL_PATH" \
+    "${MIDDLE_SERVER_USER}@${MIDDLE_SERVER_IP}:/home/${MIDDLE_SERVER_USER}/"
+  # shellcheck disable=2087
+  ssh "${MIDDLE_SERVER_USER}@${MIDDLE_SERVER_IP}" <<-SSHEOF
+    set -euEo pipefail
+
+#     # Allows to run sudo without password
+#     export HISTIGNORE='*sudo -S*'
+#     echo "${MIDDLE_SERVER_PASSWORD:-}" | sudo -S sudo -s <<SUDOEOF
+#     echo "${MIDDLE_SERVER_USER} ALL=NOPASSWD:ALL" > /etc/sudoers.d/nopasswd
+# SUDOEOF
+
+    #
+    # Configures DNS
+    #
+    readonly nic="\$(ip r | grep '^default' | cut -d' ' -f5)"
+    readonly staticip="\$(ip r | grep "\${nic}.*kernel" | cut -d' ' -f9)"
+    readonly gatewayip="\$(ip r | grep '^default' | cut -d' ' -f3)"
+
+    readonly netplan_cfg="/etc/netplan/${MIDDLE_SERVER_NETPLAN}"
+
+    [[ -f "\$netplan_cfg" ]] &&
+      sudo cp "\$netplan_cfg" "\${netplan_cfg}.$(printf '%(%Y%m%d%H%M%S)T')"
+
+    cat <<EOF | sudo tee "\$netplan_cfg"
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    \${nic}:
+      dhcp4: no
+      dhcp6: no
+      addresses:
+        - \${staticip}/24
+      gateway4: \${gatewayip}
+      nameservers:
+        search:
+          - vps.etecsa.cu
+        addresses:
+          - 1.1.1.1
+          - 1.0.0.1
+EOF
+
+    #
+    # Installs and Configures: openvpn client + shadowsocks client to end-server
+    #
+
+    ## Configures end-server.ovpn profile
+    cat <<EOF >> ~/"${END_SERVER_OPENVPN_CLIENT_NAME}.ovpn"
+
+# Allows incoming traffic from CU public ip to shadowsocks server
+route 152.206.0.0   255.254.0.0      net_gateway
+# Avoid traffic leak when the vpn is down
+persist-tun
+persist-key
+# Custom gateways
+${MIDDLE_SERVER_OVPN_CLIENT_PROFILE_CUSTOM:-}
+EOF
+
+    ## Configures docker & apt
+    ${SNIPPET_CONFIGURE_DOCKER_APT}
+
+    ### The below export allows the docker repo gpg key to be downloaded from https://download.docker.com/linux/ubuntu/gpg
+    export https_proxy="$PROXY_URL"
+    wget -qO - https://git.io/JT5TG?=openvpn-shadowsocks-client-ubuntu |
+      WORKING_DIR=~/openvpn-shadowsocks-client \
+      SS_SERVER_IP="$END_SERVER_IP" \
+      SS_SERVER_PORT="$END_SERVER_SS_PORT" \
+      SS_PASSWORD="$END_SERVER_SS_PASSWORD" \
+      SS_PORT=1080 \
+      OPENVPN_PROFILE_FILE=~/"${END_SERVER_OPENVPN_CLIENT_NAME}.ovpn" \
+      bash
+    unset https_proxy
+
+    #
+    # Installs and Configures: openvpn server + shadowsocks server for gateway client
+    #
+    wget -qO - https://git.io/JT9Gz?=openvpn-shadowsocks-server-linux |
+      WORKING_DIR=~/openvpn-shadowsocks-server \
+      SS_CLIENT_PORT=1080 \
+      SS_PORT="$MIDDLE_SERVER_SS_PORT" \
+      SS_PASSWORD="$MIDDLE_SERVER_SS_PASSWORD" \
+      OPENVPN_CLIENT_NAME="$MIDDLE_SERVER_OPENVPN_CLIENT_NAME" \
+      bash
+
+    #
+    # Install apps
+    #
+    ${SNIPPET_INSTALL_APPS}
+
+    #
+    # Allows https traffic
+    #
+    sudo ufw allow https
+
+    #
+    # Enables and start openvpn client
+    #
+    sudo systemctl enable --now openvpn-client@ovpn-ssclient
+
+    #
+    # Apply network config changes (dns)
+    #
+    sudo netplan apply
+SSHEOF
+
+  # copies middle-server.ovpn profile to local
+  [[ -f "$MIDDLE_SERVER_OVPN_PROFILE_LOCAL_PATH" ]] &&
+    rm -f "$MIDDLE_SERVER_OVPN_PROFILE_LOCAL_PATH"
+
+  scp -v "${MIDDLE_SERVER_USER}@${MIDDLE_SERVER_IP}:/home/${MIDDLE_SERVER_USER}/openvpn-shadowsocks-server/${MIDDLE_SERVER_OPENVPN_CLIENT_NAME}.ovpn" \
+    "$MIDDLE_SERVER_OVPN_PROFILE_LOCAL_PATH"
+}
+
+main() {
+  configure_end_server
+  configure_middle_server
+}
+
+# on_exit() {
+#   rm -r "$TMP_DIR"
+# }
+# trap on_exit INT TERM EXIT
+
+if [[ "${BASH_SOURCE[0]}" = "${0}" ]]; then
+  main "$@"
+fi
