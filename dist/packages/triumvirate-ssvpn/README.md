@@ -31,7 +31,7 @@ git clone https://github.com/yunielrc/cac-scripts.git
 cd cac-scripts/packages/triumvirate-ssvpn
 cp .env{.sample,}
 vim .env                  # edit the config
-bash configure-backend    # configure middle and end server
+bash configure-backend    # !!OPTIONAL!!: configure middle and end server
 bash configure-gateway    # configure gateway server
 ```
 
