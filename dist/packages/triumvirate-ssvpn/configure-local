@@ -22,8 +22,8 @@ configure_local_pc() {
 [Unit]
 # Autostart VirtualBox virtual machines
 Description=VirtualBox VM %I
-After=network.target vboxdrv.service
-Before=runlevel2.target shutdown.target
+After=network.target vboxdrv.service virtualbox.service
+Before=shutdown.target
 
 [Service]
 User=${USER}

@@ -8,6 +8,7 @@ set -eu
 # GLOBALS:
 #   INTERNET_IP
 #   MIDDLE_SERVER_IP
+#   VPN_BYPASS_INTERNET_IP
 #
 
 if [ -f /etc/openvpn-client-sslocal-doctor.env ]; then
