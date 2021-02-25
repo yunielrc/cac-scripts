@@ -11,7 +11,7 @@ set -eu
 install -v -m 551 ./openvpn-client-sslocal-doctor /usr/local/bin
 
 # adds script to crontab
-readonly tmpcron=/tmp/tmpcron
+readonly tmpcron="$(mktemp)"
 crontab -l >"$tmpcron" || :
 cat <<EOF >>"$tmpcron"
 # openvpn-client-sslocal-doctor
