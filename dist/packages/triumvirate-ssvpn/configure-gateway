@@ -188,7 +188,7 @@ route 190.205.96.0        255.255.240.0  net_gateway
 route 10.180.0.30      255.255.255.255  net_gateway
 
 # Custom gateways
-${GATEWAY_OVPN_CLIENT_PROFILE_CUSTOM:-''}
+${GATEWAY_OVPN_CLIENT_PROFILE_CUSTOM:-}
 EOF
 
     mkdir -p /etc/openvpn/client
