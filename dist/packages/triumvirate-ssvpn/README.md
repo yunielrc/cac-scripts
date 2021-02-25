@@ -64,6 +64,7 @@ Run the commands below to configure:
 ```sh
 git clone https://github.com/yunielrc/cac-scripts.git
 cd cac-scripts/dist/packages/triumvirate-ssvpn
+
 mv .env{,.bak}
 cp .env{.sample,.local}
 vim .env                  # edit the config
