@@ -106,7 +106,7 @@ configure_middle_server() {
     [[ -f "\$netplan_cfg" ]] &&
       sudo cp "\$netplan_cfg" "\${netplan_cfg}.$(printf '%(%Y%m%d%H%M%S)T')"
 
-    cat <<EOF | sudo tee "\$netplan_cfg"
+    cat <<-EOF | sudo tee "\$netplan_cfg"
 network:
   version: 2
   renderer: networkd
@@ -130,7 +130,7 @@ EOF
     #
 
     ## Configures end-server.ovpn profile
-    cat <<EOF >> ~/"${END_SERVER_OPENVPN_CLIENT_NAME}.ovpn"
+    cat <<-'EOF' >> ~/"${END_SERVER_OPENVPN_CLIENT_NAME}.ovpn"
 
 # Allows incoming traffic from CU public ip to shadowsocks server
 route 152.206.0.0   255.254.0.0      net_gateway
