@@ -22,7 +22,7 @@ readonly OVPN_SERVICE='openvpn-client-sslocal'
 # If there is an intranet connection (middle-server access)
 if ping -c 1 -W 2 "$MIDDLE_SERVER_IP" >/dev/null 2>&1; then
   # If there is no internet connection, the vpn client is restarted
-  if ! ping -c 1 -W 10 "$INTERNET_IP" >/dev/null 2>&1; then
+  if ! ping -c 1 -W 20 "$INTERNET_IP" >/dev/null 2>&1; then
     echo "There is intranet but no internet, restarting ${OVPN_SERVICE}"
     rc-service "$OVPN_SERVICE" restart
     exit 0
