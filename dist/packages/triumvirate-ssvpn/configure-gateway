@@ -276,7 +276,11 @@ EOF
     #
     # Installs optional apps
     #
-    # apk add bmon htop bat vim
+
+    # network traffic monitor
+    apk add vnstat || :
+    # network bandwidth monitor
+    apk add bmon || :
 
     #
     # Start & Restart services
