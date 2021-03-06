@@ -95,50 +95,12 @@ EOF
     # Installs & configures shadowsocks client (sslocal)
     #
 
-    ## downloads and installs sslocal
-    (
-      cd "\$(mktemp -d)"
-      wget -qO - "\$(wget -qO - 'https://api.github.com/repos/shadowsocks/shadowsocks-rust/releases/latest' | grep -om 1 'https://.*shadowsocks.*x86_64-unknown-linux-musl.tar.xz')" | tar xJf -
-      mv sslocal /usr/bin
-
-      wget -qO - "\$(wget -qO - 'https://api.github.com/repos/shadowsocks/v2ray-plugin/releases/latest' | grep -om 1 'https://.*v2ray-plugin-linux-amd64-.*.tar.gz')" | tar xzf -
-      mv v2ray-plugin_linux_amd64 /usr/bin/v2ray-plugin
-
-      rm ./*
-    )
-    ## adds sslocal config
-    mkdir /etc/sslocal
-    cat <<-'EOF' >/etc/sslocal/config.json
-{
-  "server": "${MIDDLE_SERVER_IP}",
-  "server_port": ${MIDDLE_SERVER_SS_PORT},
-  "local_address": "0.0.0.0",
-  "local_port": 1080,
-  "password": "${MIDDLE_SERVER_SS_PASSWORD}",
-  "timeout": 300,
-  "method": "aes-256-gcm",
-  "plugin": "v2ray-plugin"
-}
-EOF
-    ## adds sslocal openrc init script
-    cat <<-'EOF' >/etc/init.d/sslocal
-#!/sbin/openrc-run
-
-name="\$SVCNAME"
-command="/usr/bin/\$SVCNAME"
-command_args='-c /etc/sslocal/config.json'
-command_args_background="-d --daemonize-pid /var/run/\${SVCNAME}.pid"
-pidfile="/var/run/\${SVCNAME}.pid"
-
-depend() {
-  need net
-  use nic-start
-  after firewall
-}
-EOF
-    chmod +x /etc/init.d/sslocal
-    ## adds sslocal service
-    rc-update add sslocal
+    wget -qO - https://git.io/JqTyQ?=shadowsocks-client-alpine |
+      SS_SERVER_IP="$MIDDLE_SERVER_IP"  \
+      SS_SERVER_PORT="$MIDDLE_SERVER_SS_PORT"  \
+      SS_SERVER_PASSWORD="$MIDDLE_SERVER_SS_PASSWORD"  \
+      SS_PLUGIN=v2ray-plugin  \
+      sh
 
     #
     # Installs & configure openvpn client

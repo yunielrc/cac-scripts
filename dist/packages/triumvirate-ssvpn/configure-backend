@@ -63,6 +63,18 @@ configure_end_server() {
       OPENVPN_CLIENT_NAME="$END_SERVER_OPENVPN_CLIENT_NAME" \
       bash
 
+    # Installs ssserver daily update script
+    cat <<-'EOF' | sudo tee /etc/cron.daily/end-server-update-ss
+#!/usr/bin/env sh
+
+docker run --rm \\
+    -v /var/run/docker.sock:/var/run/docker.sock \\
+    containrrr/watchtower \\
+    --run-once \\
+    ssserver
+EOF
+    sudo chmod +x /etc/cron.daily/end-server-update-ss
+
     # Install apps
     ${SNIPPET_INSTALL_APPS}
 SSHEOF
@@ -166,6 +178,18 @@ EOF
       SS_PASSWORD="$MIDDLE_SERVER_SS_PASSWORD" \
       OPENVPN_CLIENT_NAME="$MIDDLE_SERVER_OPENVPN_CLIENT_NAME" \
       bash
+
+    # Installs shadowsocks daily update script
+    cat <<-'EOF' | sudo tee /etc/cron.daily/middle-server-update-ss
+#!/usr/bin/env sh
+
+docker run --rm \\
+    -v /var/run/docker.sock:/var/run/docker.sock \\
+    containrrr/watchtower \\
+    --run-once \\
+    ssclient ssserver
+EOF
+    sudo chmod +x /etc/cron.daily/middle-server-update-ss
 
     #
     # Install apps

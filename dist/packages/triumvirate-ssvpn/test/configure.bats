@@ -11,6 +11,8 @@ load test_helper
 
     [[ -n "$(sudo docker ps --all --quiet --filter name=ssserver)" ]]
     [[ -n "$(sudo docker ps --all --quiet --filter name=openvpn)" ]]
+
+    [[ -x /etc/cron.daily/end-server-update-ss ]]
 SSHEOF
 
   [[ -f "$END_SERVER_OVPN_PROFILE_LOCAL_PATH" ]]
@@ -46,6 +48,7 @@ SSHEOF
     [[ -n "\$(sudo docker ps --all --quiet --filter name=ssserver)" ]]
     [[ -n "\$(sudo docker ps --all --quiet --filter name=openvpn)" ]]
 
+    [[ -x /etc/cron.daily/middle-server-update-ss ]]
 SSHEOF
 
   [[ -f "$MIDDLE_SERVER_OVPN_PROFILE_LOCAL_PATH" ]]
@@ -66,6 +69,7 @@ SSHEOF
     # CHECK: Installs & configures shadowsocks client (sslocal)
     #
     rc-service sslocal status
+    [ -x /etc/periodic/daily/shadowsocks-client-alpine-update ]
 
     #
     # CHECK: Installs & configure openvpn client
