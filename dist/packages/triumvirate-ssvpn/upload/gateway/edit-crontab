@@ -1,0 +1,24 @@
+#!/usr/bin/env sh
+
+set -eu
+
+# Environment Variables (PARAMETERS)
+# DAILY_HOUR=11
+# WEEKLY_HOUR=13
+# MONTHLY_HOUR=15
+
+# adds script to crontab
+readonly tmpcron="$(mktemp)"
+crontab -l >"$tmpcron" || :
+# change daily cron execution hour
+sed -i "s/\(\d\{1,2\}\s\+\)\(\d\{1,2\}\)\(.*\/etc\/periodic\/daily\)/\1${DAILY_HOUR:-2} \3/" \
+  "$tmpcron"
+# change weekly cron execution hour
+sed -i "s/\(\d\{1,2\}\s\+\)\(\d\{1,2\}\)\(.*\/etc\/periodic\/weekly\)/\1${WEEKLY_HOUR:-3} \3/" \
+  "$tmpcron"
+# change monthly cron execution hour
+sed -i "s/\(\d\{1,2\}\s\+\)\(\d\{1,2\}\)\(.*\/etc\/periodic\/monthly\)/\1${MONTHLY_HOUR:-5} \3/" \
+  "$tmpcron"
+
+crontab "$tmpcron"
+rm "$tmpcron"

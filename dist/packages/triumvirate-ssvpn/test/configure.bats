@@ -1,6 +1,7 @@
 load test_helper
 
 @test 'configure_end_server should install openvpn + sss server' {
+  skip
   [[ -f "$END_SERVER_OVPN_PROFILE_LOCAL_PATH" ]] &&
     rm -f "$END_SERVER_OVPN_PROFILE_LOCAL_PATH"
 
@@ -19,6 +20,7 @@ SSHEOF
 }
 
 @test 'configure_middle_server should install openvpn + sss server, openvpn client + ssclient' {
+  skip
   [[ -f "$MIDDLE_SERVER_OVPN_PROFILE_LOCAL_PATH" ]] &&
     rm -f "$MIDDLE_SERVER_OVPN_PROFILE_LOCAL_PATH"
 

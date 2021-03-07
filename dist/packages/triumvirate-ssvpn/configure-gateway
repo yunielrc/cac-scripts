@@ -193,6 +193,11 @@ EOF
     )
 
     #
+    # Edit crontab daily/weekly/monthly maintenance hour
+    #
+    DAILY_HOUR=11 WEEKLY_HOUR=14 MONTHLY_HOUR=15 sh /tmp/gateway/edit-crontab
+
+    #
     # Installs dnsmasq
     #
     apk add dnsmasq
