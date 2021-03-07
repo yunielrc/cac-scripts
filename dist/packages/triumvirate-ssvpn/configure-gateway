@@ -246,6 +246,8 @@ EOF
     fi
     # network bandwidth monitor
     apk add bmon || :
+    # system monitor
+    apk add htop || :
 
     #
     # Start & Restart services
