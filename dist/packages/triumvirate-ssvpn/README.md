@@ -25,14 +25,14 @@ GATEWAY       | MIDDLE-SERVER   | END-SERVER
 Run the commands below to configure:
 
 ```sh
-ssh-copy-id <GATEWAY_USER>@<GATEWAY_IP>
-cp <DIR>/middle-server.ovpn ~/middle-server.ovpn
-
 git clone https://github.com/yunielrc/cac-scripts.git
 cd cac-scripts/dist/packages/triumvirate-ssvpn
 
+mv .env{,.bak}
 cp .env{.gateway.sample,.local}
 vim .env.local                         # edit the config
+ssh-copy-id <gateway_user>@<gateway_ip>
+cp <some_dir>/middle-server.ovpn ~/middle-server.ovpn
 bash configure-gateway                 # configure gateway server
 
 rm ~/middle-server.ovpn
@@ -68,6 +68,9 @@ cd cac-scripts/dist/packages/triumvirate-ssvpn
 mv .env{,.bak}
 cp .env{.sample,.local}
 vim .env                  # edit the config
+ssh-copy-id <gateway_user>@<gateway_ip>
+ssh-copy-id <middle_user>@<middle_ip>
+ssh-copy-id <end_user>@<end_ip>
 bash configure-backend    # !!OPTIONAL!!: configure middle and end server
 bash configure-gateway    # configure gateway server
 ```
