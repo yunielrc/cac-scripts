@@ -77,6 +77,14 @@ EOF
 
     # Install apps
     ${SNIPPET_INSTALL_APPS}
+
+    #
+    # Allows https & ssh traffic
+    #
+    type -P ufw || sudo apt-get install -y ufw
+    sudo ufw allow https || :
+    sudo ufw allow ssh || :
+    sudo ufw enable || :
 SSHEOF
   #
   # Copies end-server.ovpn profile to local
@@ -197,15 +205,18 @@ EOF
     ${SNIPPET_INSTALL_APPS}
 
     #
-    # Allows https traffic
+    # Allows https & ssh traffic
     #
-    sudo ufw allow https
+    type -P ufw || sudo apt-get install -y ufw
+    sudo ufw allow https || :
+    sudo ufw allow ssh || :
 
     #
     # Enables and start openvpn client
     #
     sudo systemctl enable --now openvpn-client@ovpn-ssclient
 
+    sudo ufw enable || :
     #
     # Apply network config changes (dns)
     #
