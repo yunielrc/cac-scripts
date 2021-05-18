@@ -257,6 +257,8 @@ EOF
     #
     # Start & Restart services
     #
+    rc-update add ntpd
+    rc-service ntpd start
     rc-service nic-start start
     rc-service dnsmasq start
     rc-service sslocal start
