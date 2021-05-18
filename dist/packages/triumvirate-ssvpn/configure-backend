@@ -45,7 +45,7 @@ SNIPPET_EOF
 }
 
 readonly SNIPPET_CONFIGURE_DOCKER_APT="$(__snippet_configure_docker_apt)"
-readonly SNIPPET_INSTALL_APPS='sudo apt install -y bmon net-tools vnstat
+readonly SNIPPET_INSTALL_APPS='sudo apt install -y bmon net-tools vnstat iftop
 '
 
 configure_end_server() {
