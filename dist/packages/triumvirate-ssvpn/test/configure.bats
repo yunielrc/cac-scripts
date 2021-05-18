@@ -101,7 +101,7 @@ SSHEOF
     # readonly nic="\$(ip r | grep '^default' | cut -d' ' -f5)"
     # [ "\$(ip r | grep "\${nic}.*kernel" | cut -d' ' -f9)" = "$GATEWAY_IP" ]
     # [ "\$(ip r | grep '^default' | cut -d' ' -f3)" = "$GATEWAY_GATEWAY_IP" ]
-    wget -qO - ifconfig.me
+    wget -qO - checkip.amazonaws.com
     # wget -qO - ifconfig.me | grep -q "$END_SERVER_IP"
 
     ## TODO: test traffic route with traceroute
