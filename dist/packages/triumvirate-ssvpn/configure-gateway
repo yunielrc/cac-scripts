@@ -255,10 +255,19 @@ EOF
     apk add htop || :
 
     #
+    # Configures ntpd
+    #
+    cat <<-'EOF' >/etc/periodic/daily/do-ntp
+#!/bin/sh
+ntpd -d -q -n -p time.cloudflare.com
+EOF
+    chmod +x /etc/periodic/daily/do-ntp
+
+    #
     # Start & Restart services
     #
-    rc-update add ntpd
-    rc-service ntpd start
+    # rc-update add ntpd
+    # rc-service ntpd start
     rc-service nic-start start
     rc-service dnsmasq start
     rc-service sslocal start
