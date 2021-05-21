@@ -257,11 +257,11 @@ EOF
     #
     # Configures ntpd
     #
-    cat <<-'EOF' >/etc/periodic/daily/do-ntp
+    cat <<-'EOF' >/etc/periodic/hourly/do-ntp
 #!/bin/sh
 ntpd -d -q -n -p time.cloudflare.com
 EOF
-    chmod +x /etc/periodic/daily/do-ntp
+    chmod +x /etc/periodic/hourly/do-ntp
 
     #
     # Start & Restart services
