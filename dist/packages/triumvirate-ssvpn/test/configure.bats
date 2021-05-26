@@ -1,9 +1,11 @@
 load test_helper
 
 @test 'configure_end_server should install openvpn + sss server' {
-  skip
   [[ -f "$END_SERVER_OVPN_PROFILE_LOCAL_PATH" ]] &&
     rm -f "$END_SERVER_OVPN_PROFILE_LOCAL_PATH"
+
+  [[ -f "$END_SERVER_OVPN_PROFILE_LOCAL_PATH2" ]] &&
+    rm -f "$END_SERVER_OVPN_PROFILE_LOCAL_PATH2"
 
   configure_end_server
 
@@ -12,11 +14,13 @@ load test_helper
 
     [[ -n "$(sudo docker ps --all --quiet --filter name=ssserver)" ]]
     [[ -n "$(sudo docker ps --all --quiet --filter name=openvpn)" ]]
+    [[ -n "$(sudo docker ps --all --quiet --filter name=openvpn2)" ]]
 
     [[ -x /etc/cron.daily/end-server-update-ss ]]
 SSHEOF
 
   [[ -f "$END_SERVER_OVPN_PROFILE_LOCAL_PATH" ]]
+  [[ -f "$END_SERVER_OVPN_PROFILE_LOCAL_PATH2" ]]
 }
 
 @test 'configure_middle_server should install openvpn + sss server, openvpn client + ssclient' {
@@ -57,6 +61,7 @@ SSHEOF
 }
 
 @test 'configure_gateway_alpine should install openvpn + sss client' {
+  skip
   configure_gateway_alpine
 
   ssh "${GATEWAY_USER}@${GATEWAY_IP}" <<-SSHEOF

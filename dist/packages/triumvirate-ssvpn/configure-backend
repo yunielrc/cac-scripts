@@ -61,6 +61,7 @@ configure_end_server() {
       SS_PORT="$END_SERVER_SS_PORT" \
       SS_PASSWORD="$END_SERVER_SS_PASSWORD" \
       OPENVPN_CLIENT_NAME="$END_SERVER_OPENVPN_CLIENT_NAME" \
+      PUBLIC_IP="$END_SERVER_IP" \
       bash
 
     # Installs ssserver daily update script
@@ -74,6 +75,15 @@ docker run --rm \\
     ssserver
 EOF
     sudo chmod +x /etc/cron.daily/end-server-update-ss
+
+  # Install and Configure: openvpn-server 2
+  wget -qO -  https://git.io/JT9G2?=openvpn-server-linux |
+    WORKING_DIR=~/openvpn-server \
+    OPENVPN_CLIENT_NAME="$END_SERVER_OPENVPN_CLIENT_NAME2" \
+    OPENVPN_HOST="$END_SERVER_IP2" \
+    PUBLIC_IP="$END_SERVER_IP2" \
+    OPENVPN_CONTAINER_NAME="openvpn2" \
+    bash
 
     # Install apps
     ${SNIPPET_INSTALL_APPS}
@@ -94,6 +104,14 @@ SSHEOF
 
   scp -v "${END_SERVER_USER}@${END_SERVER_IP}:/home/${END_SERVER_USER}/openvpn-shadowsocks-server/${END_SERVER_OPENVPN_CLIENT_NAME}.ovpn" \
     "$END_SERVER_OVPN_PROFILE_LOCAL_PATH"
+  #
+  # Copies end-server-vpn2.ovpn profile to local
+  #
+  [[ -f "$END_SERVER_OVPN_PROFILE_LOCAL_PATH2" ]] &&
+    rm -f "$END_SERVER_OVPN_PROFILE_LOCAL_PATH2"
+
+  scp -v "${END_SERVER_USER}@${END_SERVER_IP}:/home/${END_SERVER_USER}/openvpn-server/${END_SERVER_OPENVPN_CLIENT_NAME2}.ovpn" \
+    "$END_SERVER_OVPN_PROFILE_LOCAL_PATH2"
 
   echo '>> END-SERVER configured'
 }
@@ -235,7 +253,7 @@ SSHEOF
 
 main() {
   configure_end_server
-  configure_middle_server
+  # configure_middle_server
 }
 
 # on_exit() {
