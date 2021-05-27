@@ -83,7 +83,16 @@ EOF
     OPENVPN_HOST="$END_SERVER_IP2" \
     PUBLIC_IP="$END_SERVER_IP2" \
     OPENVPN_CONTAINER_NAME="openvpn2" \
+    OPENVPN_PROTOCOL="tcp" \
     bash
+  # Edit vpn profile
+cat <<-EOF >>~/"openvpn-server/${END_SERVER_OPENVPN_CLIENT_NAME2}.ovpn"
+proto tcp
+socks-proxy 127.0.0.1 1080
+
+route ${MIDDLE_SERVER_IP}   255.255.255.255  net_gateway
+
+EOF
 
     # Install apps
     ${SNIPPET_INSTALL_APPS}
