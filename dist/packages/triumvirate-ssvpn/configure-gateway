@@ -31,12 +31,12 @@ configure_gateway_alpine() {
   scp -r ./upload/gateway "${GATEWAY_USER}@${GATEWAY_IP}:/tmp"
 
   #
-  # Copies middle-server.ovpn profile from local to gateway
+  # Copies end-server-vpn2.ovpn profile from local to gateway
   #
   copy_dir="/home/${GATEWAY_USER}"
   [ "$GATEWAY_USER" = root ] && copy_dir=/root
 
-  scp "$MIDDLE_SERVER_OVPN_PROFILE_LOCAL_PATH" \
+  scp "$END_SERVER_OVPN_PROFILE_LOCAL_PATH2" \
     "${GATEWAY_USER}@${GATEWAY_IP}:${copy_dir}"
 
   # shellcheck disable=2087
@@ -114,7 +114,7 @@ EOF
 
     ## adds openvpn-client-sslocal config
 
-    cat <<-'EOF' >>~/"${MIDDLE_SERVER_OPENVPN_CLIENT_NAME}.ovpn"
+    cat <<-'EOF' >>~/"${END_SERVER_OPENVPN_CLIENT_NAME2}.ovpn"
 
 #
 # Allows direct outcoming traffic
@@ -154,7 +154,7 @@ ${GATEWAY_OVPN_CLIENT_PROFILE_CUSTOM:-}
 EOF
 
     mkdir -p /etc/openvpn/client
-    mv ~/"${MIDDLE_SERVER_OPENVPN_CLIENT_NAME}.ovpn" \
+    mv ~/"${END_SERVER_OPENVPN_CLIENT_NAME2}.ovpn" \
       /etc/openvpn/client/openvpn-client-sslocal.conf
 
     ## adds openvpn-client-sslocal openrc init script

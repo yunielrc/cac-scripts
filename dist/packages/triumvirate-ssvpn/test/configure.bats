@@ -25,7 +25,7 @@ SSHEOF
 }
 
 @test 'configure_middle_server should install openvpn + sss server, openvpn client + ssclient' {
-
+  skip
   configure_middle_server
 
   ssh "${MIDDLE_SERVER_USER}@${MIDDLE_SERVER_IP}" <<-SSHEOF
@@ -56,7 +56,7 @@ SSHEOF
 }
 
 @test 'configure_gateway_alpine should install openvpn + sss client' {
-  skip
+
   configure_gateway_alpine
 
   ssh "${GATEWAY_USER}@${GATEWAY_IP}" <<-SSHEOF
