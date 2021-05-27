@@ -50,7 +50,7 @@ readonly SNIPPET_INSTALL_APPS='sudo apt install -y bmon net-tools vnstat iftop
 
 configure_end_server() {
   #
-  # Installs and Configures: openvpn server + shadowsocks server
+  # Installs and Configures: openvpn server + shadowsocks server for middle-server
   # shellcheck disable=2087
   ssh "${END_SERVER_USER}@${END_SERVER_IP}" <<-SSHEOF
     set -euEo pipefail
@@ -76,7 +76,7 @@ docker run --rm \\
 EOF
     sudo chmod +x /etc/cron.daily/end-server-update-ss
 
-  # Install and Configure: openvpn-server 2
+  # Install and Configure: openvpn-server 2 for gateway client
   wget -qO -  https://git.io/JT9G2?=openvpn-server-linux |
     WORKING_DIR=~/openvpn-server \
     OPENVPN_CLIENT_NAME="$END_SERVER_OPENVPN_CLIENT_NAME2" \
@@ -195,15 +195,30 @@ EOF
     unset https_proxy
 
     #
-    # Installs and Configures: openvpn server + shadowsocks server for gateway client
+    # Install and Configure: shadowsocks server for gateway client
     #
-    wget -qO - https://git.io/JT9Gz?=openvpn-shadowsocks-server-linux |
-      WORKING_DIR=~/openvpn-shadowsocks-server \
-      SS_CLIENT_PORT=1080 \
-      SS_PORT="$MIDDLE_SERVER_SS_PORT" \
-      SS_PASSWORD="$MIDDLE_SERVER_SS_PASSWORD" \
-      OPENVPN_CLIENT_NAME="$MIDDLE_SERVER_OPENVPN_CLIENT_NAME" \
-      bash
+    mkdir -v ~/shadowsocks-server
+    (
+      cd ~/shadowsocks-server
+    # make shadowsocks-server docker-compose.yml
+    cat <<-EOF >docker-compose.yml
+version: "3.3"
+
+services:
+  ssserver:
+    image: yunielrc/shadowsocks-rust-server
+    restart: always
+    container_name: ssserver
+    environment:
+      - "SS_PASSWORD=${MIDDLE_SERVER_SS_PASSWORD}"
+      - "SS_PLUGIN=v2ray-plugin"
+      - "SS_PLUGIN_OPTS=server"
+    ports:
+      - "${MIDDLE_SERVER_SS_PORT}:8388/tcp"
+      - "${MIDDLE_SERVER_SS_PORT}:8388/udp"
+EOF
+    sudo docker-compose up -d
+    )
 
     # Installs shadowsocks daily update script
     cat <<-'EOF' | sudo tee /etc/cron.daily/middle-server-update-ss
@@ -241,19 +256,12 @@ EOF
     sudo netplan apply
 SSHEOF
 
-  # copies middle-server.ovpn profile to local
-  [[ -f "$MIDDLE_SERVER_OVPN_PROFILE_LOCAL_PATH" ]] &&
-    rm -f "$MIDDLE_SERVER_OVPN_PROFILE_LOCAL_PATH"
-
-  scp -v "${MIDDLE_SERVER_USER}@${MIDDLE_SERVER_IP}:/home/${MIDDLE_SERVER_USER}/openvpn-shadowsocks-server/${MIDDLE_SERVER_OPENVPN_CLIENT_NAME}.ovpn" \
-    "$MIDDLE_SERVER_OVPN_PROFILE_LOCAL_PATH"
-
   echo '>> MIDDLE-SERVER configured'
 }
 
 main() {
   configure_end_server
-  # configure_middle_server
+  configure_middle_server
 }
 
 # on_exit() {
