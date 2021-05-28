@@ -1,7 +1,6 @@
 load test_helper
 
 @test 'configure_end_server should install openvpn + sss server' {
-  skip
   [[ -f "$END_SERVER_OVPN_PROFILE_LOCAL_PATH" ]] &&
     rm -f "$END_SERVER_OVPN_PROFILE_LOCAL_PATH"
 
@@ -25,7 +24,6 @@ SSHEOF
 }
 
 @test 'configure_middle_server should install openvpn + sss server, openvpn client + ssclient' {
-  skip
   configure_middle_server
 
   ssh "${MIDDLE_SERVER_USER}@${MIDDLE_SERVER_IP}" <<-SSHEOF
@@ -56,7 +54,6 @@ SSHEOF
 }
 
 @test 'configure_gateway_alpine should install openvpn + sss client' {
-
   configure_gateway_alpine
 
   ssh "${GATEWAY_USER}@${GATEWAY_IP}" <<-SSHEOF
