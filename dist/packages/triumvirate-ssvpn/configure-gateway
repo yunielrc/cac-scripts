@@ -245,10 +245,10 @@ EOF
     #
 
     # network traffic monitor
-    if apk add vnstat; then
-      rc-update add vnstatd
-      rc-service vnstatd start
-    fi
+    # if apk add vnstat; then
+    #   rc-update add vnstatd
+    #   rc-service vnstatd start
+    # fi
     # network bandwidth monitor
     apk add bmon || :
     # system monitor
