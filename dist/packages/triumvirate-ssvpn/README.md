@@ -4,12 +4,12 @@ Configures three servers connected in a straight line with vpn + shadowsocks
 
 GATEWAY ⇆ MIDDLE-SERVER ⇆ END-SERVER
 
-GATEWAY       | MIDDLE-SERVER   | END-SERVER
---------------|-----------------|---------
-|vpn client   |   ss client  ⇆ | ⇆  ss server
-|     ⇅      |   ⇅ vpn client  |    ⇅
-|     ⇅      |   ⇅ vpn server  |    ⇅
-|ss client ⇆  | ⇆ ss server    | vpn server
+GATEWAY           |  MIDDLE-SERVER    | END-SERVER
+------------------|-------------------|---------
+|**_vpn client (0)_**   | ss client (2)  ⇆  | ⇆  ss server (2)
+|     ⇅          |      ⇅            |    ⇅
+|     ⇅          | ⇅ vpn client (2)  | ⇅ vpn server (2)
+|ss client (1) ⇆ | ⇆ ss server (1)   | **_⇅ vpn server (0)_**
 
 ## Only Gateway
 
@@ -49,7 +49,9 @@ bash configure-local
 ### Prerequisites for triumvirate-ssvpn
 
 You need three devices or vm instances running, one on your local network (GATEWAY with alpine linux 13.13),
-another on your country's intranet (MIDDLE-SERVER with ubuntu 20.04), and another on internet (END-SERVER with ubuntu 20.04)
+another on your country's intranet (MIDDLE-SERVER with ubuntu 20.04), and another on internet (END-SERVER with ubuntu 20.04).
+
+END-SERVER must have two public IP, END_SERVER_IP must be the floating IP, and END_SERVER_IP2 must be the real server IP.
 
 Before continuing to configure the servers, you must run the following command on each ubuntu server in order to run sudo without password prompt:
 
