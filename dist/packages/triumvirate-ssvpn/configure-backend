@@ -62,6 +62,7 @@ configure_end_server() {
       SS_PASSWORD="$END_SERVER_SS_PASSWORD" \
       OPENVPN_CLIENT_NAME="$END_SERVER_OPENVPN_CLIENT_NAME" \
       PUBLIC_IP="$END_SERVER_IP" \
+      OPENVPN_PROTOCOL="tcp" \
       bash
 
     # Installs ssserver daily update script
