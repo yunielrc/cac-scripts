@@ -18,7 +18,7 @@ GATEWAY           |  MIDDLE-SERVER    | END-SERVER
 - middle-server and end-server already configured and running
 - A device or a vm instance running on your local network with a Clean Alpine linux 13.13 or higher installed.
   [How to install alpine in virtualbox](https://github.com/yunielrc/kbp/blob/main/HOWTO/INTALL-ALPINE-IN-VBOX.md)
-- Middle server openvpn profile on your pc, eg: middle-server.ovpn
+- end-server openvpn profile on your pc, eg: end-server-vpn2.ovpn
 
 ### Configure gateway
 
