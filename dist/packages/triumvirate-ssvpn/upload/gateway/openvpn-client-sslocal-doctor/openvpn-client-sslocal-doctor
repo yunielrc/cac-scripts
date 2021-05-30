@@ -2,6 +2,12 @@
 #
 # Check vpn client connection status and restart it if don't have internet access
 #
+
+# flock guarantees only one running instance of the script
+if [ "${FLOCKER:-}" != "$0" ]; then
+  exec env FLOCKER="$0" flock -xn "$0" "$0" "$@" || :
+fi
+
 set -eu
 
 #

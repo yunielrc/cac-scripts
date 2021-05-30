@@ -16,7 +16,11 @@ crontab -l >"$tmpcron" || :
 cat <<EOF >>"$tmpcron"
 # openvpn-client-sslocal-doctor
 *       *       *       *       *       /usr/local/bin/openvpn-client-sslocal-doctor 2>&1 | /usr/bin/logger -t openvpn-client-sslocal-doctor
+*       *       *       *       *       sleep 10; /usr/local/bin/openvpn-client-sslocal-doctor 2>&1 | /usr/bin/logger -t openvpn-client-sslocal-doctor
+*       *       *       *       *       sleep 20; /usr/local/bin/openvpn-client-sslocal-doctor 2>&1 | /usr/bin/logger -t openvpn-client-sslocal-doctor
 *       *       *       *       *       sleep 30; /usr/local/bin/openvpn-client-sslocal-doctor 2>&1 | /usr/bin/logger -t openvpn-client-sslocal-doctor
+*       *       *       *       *       sleep 40; /usr/local/bin/openvpn-client-sslocal-doctor 2>&1 | /usr/bin/logger -t openvpn-client-sslocal-doctor
+*       *       *       *       *       sleep 50; /usr/local/bin/openvpn-client-sslocal-doctor 2>&1 | /usr/bin/logger -t openvpn-client-sslocal-doctor
 EOF
 crontab "$tmpcron"
 rm "$tmpcron"
