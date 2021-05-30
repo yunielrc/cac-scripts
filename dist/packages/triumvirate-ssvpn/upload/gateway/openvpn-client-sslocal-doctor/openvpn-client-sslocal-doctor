@@ -18,9 +18,7 @@ set -eu
 #
 
 if [ -f /etc/openvpn-client-sslocal-doctor.env ]; then
-  set -a
   . /etc/openvpn-client-sslocal-doctor.env
-  set +a
 fi
 
 readonly OVPN_SERVICE=openvpn-client-sslocal
