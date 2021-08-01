@@ -247,6 +247,13 @@ EOF
     #
     ${SNIPPET_INSTALL_APPS}
 
+    if [[ -f /etc/systemd/system/docker.service.d/http-proxy.conf ]]; then
+      sudo rm -f /etc/systemd/system/docker.service.d/http-proxy.conf
+    fi
+    if [[ -f /etc/apt/apt.conf.d/00proxy ]]; then
+       sudo rm -f /etc/apt/apt.conf.d/00proxy
+    fi
+
     #
     # Allows https & ssh traffic
     #

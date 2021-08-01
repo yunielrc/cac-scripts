@@ -11,7 +11,7 @@ repos:
     rev: 2.1.4
     hooks:
       - id: shfmt
-      - id: shellcheck
+      # - id: shellcheck
   - repo: git://github.com/IamTheFij/docker-pre-commit
     rev: v2.0.0
     hooks:
