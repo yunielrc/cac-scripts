@@ -104,6 +104,7 @@ EOF
     type -P ufw || sudo apt-get install -y ufw
     sudo ufw allow https || :
     sudo ufw allow ssh || :
+    sudo ufw allow openvpn || :
     sudo ufw enable || :
 SSHEOF
   #
